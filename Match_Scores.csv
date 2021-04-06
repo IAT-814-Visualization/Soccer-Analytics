@@ -1,0 +1,101 @@
+,matchId,gameweek,home_team,teamId,oppostion_team,oppostion_teamId,score,result
+0,2500039,33,AFC Bournemouth,1659,Crystal Palace,1628,2 - 2,Draw
+1,2500039,33,Crystal Palace,1628,AFC Bournemouth,1659,2 - 2,Draw
+2,2500040,33,Arsenal,1609,Southampton,1619,3 - 2,Win
+3,2500040,33,Southampton,1619,Arsenal,1609,2 - 3,Loss
+4,2500041,33,Brighton & Hove Albion,1651,Huddersfield Town,1673,1 - 1,Draw
+5,2500041,33,Huddersfield Town,1673,Brighton & Hove Albion,1651,1 - 1,Draw
+6,2500042,33,Chelsea,1610,West Ham United,1633,1 - 1,Draw
+7,2500042,33,West Ham United,1633,Chelsea,1610,1 - 1,Draw
+8,2500043,33,Everton,1623,Liverpool,1612,0 - 0,Draw
+9,2500043,33,Liverpool,1612,Everton,1623,0 - 0,Draw
+10,2500044,33,Leicester City,1631,Newcastle United,1613,1 - 2,Loss
+11,2500044,33,Newcastle United,1613,Leicester City,1631,2 - 1,Win
+12,2500045,33,Manchester City,1625,Manchester United,1611,2 - 3,Loss
+13,2500045,33,Manchester United,1611,Manchester City,1625,3 - 2,Win
+14,2500046,33,Stoke City,1639,Tottenham Hotspur,1624,1 - 2,Loss
+15,2500046,33,Tottenham Hotspur,1624,Stoke City,1639,2 - 1,Win
+16,2500047,33,Watford,1644,Burnley,1646,1 - 2,Loss
+17,2500047,33,Burnley,1646,Watford,1644,2 - 1,Win
+18,2500048,33,West Bromwich Albion,1627,Swansea City,10531,1 - 1,Draw
+19,2500048,33,Swansea City,10531,West Bromwich Albion,1627,1 - 1,Draw
+20,2500049,34,Burnley,1646,Leicester City,1631,2 - 1,Win
+21,2500049,34,Leicester City,1631,Burnley,1646,1 - 2,Loss
+22,2500050,34,Crystal Palace,1628,Brighton & Hove Albion,1651,3 - 2,Win
+23,2500050,34,Brighton & Hove Albion,1651,Crystal Palace,1628,2 - 3,Loss
+24,2500051,34,Huddersfield Town,1673,Watford,1644,1 - 0,Win
+25,2500051,34,Watford,1644,Huddersfield Town,1673,0 - 1,Loss
+26,2500052,34,Liverpool,1612,AFC Bournemouth,1659,3 - 0,Win
+27,2500052,34,AFC Bournemouth,1659,Liverpool,1612,0 - 3,Loss
+28,2500053,34,Manchester United,1611,West Bromwich Albion,1627,0 - 1,Loss
+29,2500053,34,West Bromwich Albion,1627,Manchester United,1611,1 - 0,Win
+30,2500054,34,Newcastle United,1613,Arsenal,1609,2 - 1,Win
+31,2500054,34,Arsenal,1609,Newcastle United,1613,1 - 2,Loss
+32,2500055,34,Southampton,1619,Chelsea,1610,2 - 3,Loss
+33,2500055,34,Chelsea,1610,Southampton,1619,3 - 2,Win
+34,2500056,34,Swansea City,10531,Everton,1623,1 - 1,Draw
+35,2500056,34,Everton,1623,Swansea City,10531,1 - 1,Draw
+36,2500057,34,Tottenham Hotspur,1624,Manchester City,1625,1 - 3,Loss
+37,2500057,34,Manchester City,1625,Tottenham Hotspur,1624,3 - 1,Win
+38,2500058,34,West Ham United,1633,Stoke City,1639,1 - 1,Draw
+39,2500058,34,Stoke City,1639,West Ham United,1633,1 - 1,Draw
+40,2500059,35,AFC Bournemouth,1659,Manchester United,1611,0 - 2,Loss
+41,2500059,35,Manchester United,1611,AFC Bournemouth,1659,2 - 0,Win
+42,2500060,35,Arsenal,1609,West Ham United,1633,4 - 1,Win
+43,2500060,35,West Ham United,1633,Arsenal,1609,1 - 4,Loss
+44,2500061,35,Brighton & Hove Albion,1651,Tottenham Hotspur,1624,1 - 1,Draw
+45,2500061,35,Tottenham Hotspur,1624,Brighton & Hove Albion,1651,1 - 1,Draw
+46,2500062,35,Chelsea,1610,Huddersfield Town,1673,1 - 1,Draw
+47,2500062,35,Huddersfield Town,1673,Chelsea,1610,1 - 1,Draw
+48,2500063,35,Everton,1623,Newcastle United,1613,1 - 0,Win
+49,2500063,35,Newcastle United,1613,Everton,1623,0 - 1,Loss
+50,2500064,35,Leicester City,1631,Southampton,1619,0 - 0,Draw
+51,2500064,35,Southampton,1619,Leicester City,1631,0 - 0,Draw
+52,2500065,35,Manchester City,1625,Swansea City,10531,5 - 0,Win
+53,2500065,35,Swansea City,10531,Manchester City,1625,0 - 5,Loss
+54,2500066,35,Stoke City,1639,Burnley,1646,1 - 1,Draw
+55,2500066,35,Burnley,1646,Stoke City,1639,1 - 1,Draw
+56,2500067,35,Watford,1644,Crystal Palace,1628,0 - 0,Draw
+57,2500067,35,Crystal Palace,1628,Watford,1644,0 - 0,Draw
+58,2500068,35,West Bromwich Albion,1627,Liverpool,1612,2 - 2,Draw
+59,2500068,35,Liverpool,1612,West Bromwich Albion,1627,2 - 2,Draw
+60,2500069,36,Burnley,1646,Brighton & Hove Albion,1651,0 - 0,Draw
+61,2500069,36,Brighton & Hove Albion,1651,Burnley,1646,0 - 0,Draw
+62,2500070,36,Crystal Palace,1628,Leicester City,1631,5 - 0,Win
+63,2500070,36,Leicester City,1631,Crystal Palace,1628,0 - 5,Loss
+64,2500071,36,Huddersfield Town,1673,Everton,1623,0 - 2,Loss
+65,2500071,36,Everton,1623,Huddersfield Town,1673,2 - 0,Win
+66,2500072,36,Liverpool,1612,Stoke City,1639,0 - 0,Draw
+67,2500072,36,Stoke City,1639,Liverpool,1612,0 - 0,Draw
+68,2500073,36,Manchester United,1611,Arsenal,1609,2 - 1,Win
+69,2500073,36,Arsenal,1609,Manchester United,1611,1 - 2,Loss
+70,2500074,36,Newcastle United,1613,West Bromwich Albion,1627,0 - 1,Loss
+71,2500074,36,West Bromwich Albion,1627,Newcastle United,1613,1 - 0,Win
+72,2500075,36,Southampton,1619,AFC Bournemouth,1659,2 - 1,Win
+73,2500075,36,AFC Bournemouth,1659,Southampton,1619,1 - 2,Loss
+74,2500076,36,Swansea City,10531,Chelsea,1610,0 - 1,Loss
+75,2500076,36,Chelsea,1610,Swansea City,10531,1 - 0,Win
+76,2500077,36,Tottenham Hotspur,1624,Watford,1644,2 - 0,Win
+77,2500077,36,Watford,1644,Tottenham Hotspur,1624,0 - 2,Loss
+78,2500078,36,West Ham United,1633,Manchester City,1625,1 - 4,Loss
+79,2500078,36,Manchester City,1625,West Ham United,1633,4 - 1,Win
+80,2500079,37,AFC Bournemouth,1659,Swansea City,10531,1 - 0,Win
+81,2500079,37,Swansea City,10531,AFC Bournemouth,1659,0 - 1,Loss
+82,2500080,37,Arsenal,1609,Burnley,1646,5 - 0,Win
+83,2500080,37,Burnley,1646,Arsenal,1609,0 - 5,Loss
+84,2500081,37,Brighton & Hove Albion,1651,Manchester United,1611,1 - 0,Win
+85,2500081,37,Manchester United,1611,Brighton & Hove Albion,1651,0 - 1,Loss
+86,2500082,37,Chelsea,1610,Liverpool,1612,1 - 0,Win
+87,2500082,37,Liverpool,1612,Chelsea,1610,0 - 1,Loss
+88,2500083,37,Everton,1623,Southampton,1619,1 - 1,Draw
+89,2500083,37,Southampton,1619,Everton,1623,1 - 1,Draw
+90,2500084,37,Leicester City,1631,West Ham United,1633,0 - 2,Loss
+91,2500084,37,West Ham United,1633,Leicester City,1631,2 - 0,Win
+92,2500085,37,Manchester City,1625,Huddersfield Town,1673,0 - 0,Draw
+93,2500085,37,Huddersfield Town,1673,Manchester City,1625,0 - 0,Draw
+94,2500086,37,Stoke City,1639,Crystal Palace,1628,1 - 2,Loss
+95,2500086,37,Crystal Palace,1628,Stoke City,1639,2 - 1,Win
+96,2500087,37,Watford,1644,Newcastle United,1613,2 - 1,Win
+97,2500087,37,Newcastle United,1613,Watford,1644,1 - 2,Loss
+98,2500088,37,West Bromwich Albion,1627,Tottenham Hotspur,1624,1 - 0,Win
+99,2500088,37,Tottenham Hotspur,1624,West Bromwich Albion,1627,0 - 1,Loss
