@@ -1,3 +1,4 @@
+from __future__ import print_function
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -6,12 +7,11 @@ import plotly.graph_objects as go
 import plotly.express as px
 from dash.dependencies import Input, Output,State
 import pandas as pd
+import numpy as np
 from flask import Flask
-from PIL import Image
 pd.set_option("mode.chained_assignment", None)
 
 
-#img = Image.open('legend.jpeg')
 # Parent Club
 parent_club = "Manchester United"
 
@@ -46,7 +46,6 @@ pass_names = pass_df['subEventName'].unique().tolist()
 pass_names.append("All Passes")
 
 
-
 # Match Results
 global match_scores
 match_scores = pd.read_csv("Match_Scores.csv")
@@ -54,7 +53,7 @@ match_scores = pd.read_csv("Match_Scores.csv")
 #Pass Accuracy
 global pass_acc
 pass_acc = pd.read_csv("pass_accuracy.csv")
-print(pass_acc.head())
+pass_acc = pass_acc.rename(columns={"playerId_sender":"playerId"})
 
 ##################################################################
 # Custom CSS styles
@@ -93,7 +92,6 @@ def Header(name, app):
 def clubname1(name,app):
     card = dbc.Card(
         [
-            # dbc.CardImg(src="/static/images/manu.jpg"),
             html.H4(
                 children=[
                     html.Div(name,id='club1_header'),
@@ -123,7 +121,7 @@ def clubname2(app):
                     html.Div(club_dropdown("Select an opposition club", app, club_names), style={"flex-grow": "1"}),
                     html.H5(
                         children=[
-                            html.Div(id='pass2_type'),
+                            html.Div(id='pass2_type',style={'width': '50%','float':'left'}),
                         ]
                     )
                 ]
@@ -159,7 +157,7 @@ def pass_dropdown(label, app, pass_names):
 
     dropdown = html.Div(
         [
-            dbc.DropdownMenu(label=label, children=items, right=True, color='info',style={'padding': '0px'}),
+            dbc.DropdownMenu(label=label, children=items, right=True, color='info',style={"display": "flex", "flexWrap": "wrap"}),
             html.P(id="pass-clicks", className="pass_dn"),
         ]
     )
@@ -273,24 +271,24 @@ def create_pos(positions_df):
     formation_team = go.Scatter(
         x=positions_df.X.values.tolist(),
         y=positions_df.Y.values.tolist(),
-        #name=str(positions_df['gameweek'].unique()[0]),
-        mode='markers',
+        mode='markers+text',
         marker={
             'size': 40,
             ## color coding required for pass density
-            'color': 'red',
+            'color': 'darkslateblue',
             'opacity': 1
         },
         textfont={
            'color': 'white',
         },
         textposition='bottom center',
-        text="Name :" + positions_df.shortName.astype('str') + "<br>    Position: " + positions_df.position.astype('str'),
+        text="<b>"+positions_df.position.astype('str') +"</b>",
+        hovertext="Name :" + positions_df.shortName.astype('str') + "<br>    Position: " + positions_df.position.astype('str'),
         customdata=positions_df[['playerId','matchId']],
         hoverinfo='text',
         showlegend=True,
         legendgroup="group",
-        name="players"
+        name="players",
     )
 
     return formation_team
@@ -304,7 +302,6 @@ def create_pass_line(pass_net):
         .agg({'Label':'count'})\
         .reset_index().rename(columns={'Label':'Pass_count'})
 
-    #print(pass_net_agg.head())
     line_team = []
     for idx, row in pass_net_agg.iterrows():
         trace1 = go.Scatter(
@@ -354,16 +351,10 @@ def create_passing_network_map(last_match_df,pass_net,opponent_flag):
         'yaxis2': {'range': [100, 0], 'visible': False},
         'plot_bgcolor': 'rgb(239, 239, 239)',
         'paper_bgcolor': 'rgb(239, 239, 239)',
-        'width' : 885,
+        #'width' : 885,
         'height': 400,
         'showlegend': False,
         'clickmode' : 'event+select',
-        # 'legend' :dict(
-        #                 orientation="h",
-        #                 yanchor="",
-        #                 #y=1.02,
-        #                 xanchor="right"),
-        #                 #x=1),
         'dragmode': 'select',
         'margin': {
             'l': 0,
@@ -372,11 +363,8 @@ def create_passing_network_map(last_match_df,pass_net,opponent_flag):
             'b': 0,
         },
         'titlefont': {
-            #                     'size': 20,
-            #                     'family': 'ObelixPro',
             'color': 'rgb(68, 68, 68)'
         },
-        #     'title': '{}'.format(events.loc[0,'team']['name'])
     }
 
     fig = go.Figure(data=data, layout=layout)
@@ -407,39 +395,58 @@ def create_passing_network_map(last_match_df,pass_net,opponent_flag):
         ay=ayval,
         arrowhead=5,
     )
-    # fig.add_layout_image(dict(
-    #     source=img,
-    #     x=0.65,
-    #     y=0.75,
-    # )
-    # )
-    # fig.update_layout_images(dict(
-    #     xref="paper",
-    #     yref="paper",
-    #     sizex=0.3,
-    #     sizey=0.3,
-    #     xanchor="right",
-    #     yanchor="bottom"
-    # ))
     return fig
 
 # Bar graph to plot the pass aggregate split between timezones
-def create_passing_bars(pass_net,passtype):
-    pass_net_agg = pass_net\
-        .groupby(['matchId','teamId','timeCat'])\
-        .agg({'Label':'count'})\
-        .reset_index().rename(columns={'Label':'Pass_count'})
+def create_passing_bars(pass_net,passtype,flag):
+    if flag == "y":
+        pass_net_agg = pass_net \
+            .groupby(['matchId', 'teamId', 'timeCat','playerId_sender','shortName_sender']) \
+            .agg({'Label': 'count'}) \
+            .reset_index().rename(columns={'Label': 'Pass_count','shortName_sender':"Player Name"})
 
-    #print(pass_net_agg)
-    fig = px.bar(pass_net_agg,x="timeCat", y="Pass_count",text='Pass_count',
-                 labels={'Pass_count': 'Number of passes', 'timeCat': 'Minutes Played'},
+        fig = px.bar(pass_net_agg, x="timeCat", y="Pass_count",color="Player Name", text='Pass_count',
+                     labels={'Pass_count': 'No: of completed passes', 'timeCat': 'Game Time'},
+                     custom_data=['playerId_sender'],
+                     )
+    else:
+        pass_net_agg = pass_net \
+            .groupby(['matchId', 'teamId', 'timeCat']) \
+            .agg({'Label': 'count'}) \
+            .reset_index().rename(columns={'Label': 'Pass_count'})
+        fig = px.bar(pass_net_agg, x="timeCat", y="Pass_count", text='Pass_count',
+                     labels={'Pass_count': 'No: of completed passes', 'timeCat': 'Game Time'},
+                     custom_data=['timeCat'],
+                     )
+        fig.update_layout(yaxis={'range': [0, xrange[passtype]]})
+
+    fig.update_layout(xaxis={'tickvals': ['0-15', '16-30', '31-45', '46-60','61-75','76-90+'],'tickmode' : 'array'},clickmode='event+select')
+    fig.update_layout(title = {'text':'<b>Completed Pass Distribution during Game</b>','x':0.5,'xanchor': 'center','yanchor': 'top','font_size':15},height=300)
+    return fig,pass_net_agg
+
+# Bar graph to plot the inaccurate pass aggregate split between timezones
+def create_inaccurate_pass_bars(pass_acc, passtype, flag):
+    pass_acc_agg = pass_acc\
+        .groupby(['matchId','teamId','timeCat'])\
+        .agg({'not accurate':'sum'})\
+        .reset_index().rename(columns={'Label':'not accurate'})
+    fig = px.bar(pass_acc_agg, x="timeCat", y="not accurate", text='not accurate',
+                 labels={'not accurate': 'No: of incomplete passes', 'timeCat': 'Game Time'},
                  custom_data=['timeCat'],
                  )
-    fig.update_layout(yaxis={'range':[0,xrange[passtype]]})
+    if flag == "y":
+        pass_acc_agg = pass_acc \
+            .groupby(['matchId', 'teamId', 'timeCat','playerId','shortName_sender']) \
+            .agg({'not accurate': 'sum'}) \
+            .reset_index().rename(columns={'Label': 'not accurate','shortName_sender':"Player Name"})
+        fig = px.bar(pass_acc_agg, x="timeCat", y="not accurate", color="Player Name", text='not accurate',
+                     labels={'not accurate': 'No: of incomplete passes', 'timeCat': 'Game Time'},
+                     custom_data=['playerId'],
+                     )
+
     fig.update_layout(xaxis={'tickvals': ['0-15', '16-30', '31-45', '46-60','61-75','76-90+'],'tickmode' : 'array'},clickmode='event+select')
-    fig.update_layout(title = {'text':'<b>Pass Distribution vs Time</b>','x':0.5,'xanchor': 'center','yanchor': 'top','font_size':15},height=500)
-    #fig.update_layout(clickmode='event')
-    return fig
+    fig.update_layout(title = {'text':'<b>Incomplete Pass Distribution during Game</b>','x':0.5,'xanchor': 'center','yanchor': 'top','font_size':15},height=300)
+    return fig,pass_acc_agg
 
 # Defining a KPI card for opponent name for both clubs
 def opponent(title,idval):
@@ -485,7 +492,7 @@ def passacc(accuracy,idval):
                    }
     )
     layout = go.Layout(
-        #autosize=True,
+        autosize=True,
         height=250,
         margin = {
                       'l': 0,
@@ -511,7 +518,7 @@ app.layout = dbc.Container(
                 dbc.Row(
                     [
                         dbc.Col(week_slider(slider_id='slider1',minval=33,maxval=37,values=37),width=5,align="start"),
-                        dbc.Col(pass_dropdown("Click here to select a pass category", app, pass_names), width=2, align="end"),
+                        dbc.Col(pass_dropdown("Filter here by pass category", app, pass_names), width=2, align="end"),
                         dbc.Col(week_slider(slider_id='slider2',minval=33,maxval=37,values=37),width=5,align="start"),
                     ],
                     no_gutters=True
@@ -532,17 +539,25 @@ app.layout = dbc.Container(
                     [
                        dbc.Col(
                            [
-                               #passacc("Pass Accuracy","passacc1"),
                                dcc.Graph(id='passacc1'),
                                opponent("Opponent","opponent1"),
                                scorecard("Scorecard","scorecard1","result1"),
                         ],align="start", width=2,
                        ),
-                       dbc.Col(dcc.Graph(id='pass_bar1',config={'modeBarButtons': [['select2d','lasso2d','resetViews']], 'displaylogo':False,'displayModeBar': True}),align="start",width=4,style=bar_style),
-                       dbc.Col(dcc.Graph(id='pass_bar2',config={'modeBarButtons': [['select2d','lasso2d','resetViews']], 'displaylogo':False,'displayModeBar': True}),align="start",width=4,style=bar_style),
+                       dbc.Col(
+                           [
+                               dcc.Graph(id='pass_bar1',config={'modeBarButtons': [['select2d','lasso2d','resetViews']], 'displaylogo':False,'displayModeBar': True}),
+                               dcc.Graph(id='inac_bar1',config={'modeBarButtons': [['select2d','lasso2d','resetViews']], 'displaylogo':False,'displayModeBar': True}),
+                            ],align="start",width=4,style=bar_style,
+                        ),
+                       dbc.Col(
+                           [
+                               dcc.Graph(id='pass_bar2',config={'modeBarButtons': [['select2d','lasso2d','resetViews']], 'displaylogo':False,'displayModeBar': True}),
+                               dcc.Graph(id='inac_bar2',config={'modeBarButtons': [['select2d', 'lasso2d', 'resetViews']],'displaylogo': False, 'displayModeBar': True}),
+                            ],align="start",width=4,style=bar_style
+                        ),
                         dbc.Col(
                             [
-                                #passacc("Pass Accuracy", "passacc2"),
                                 dcc.Graph(id='passacc2'),
                                 opponent("Opponent", "opponent2"),
                                 scorecard("Scorecard", "scorecard2","result2"),
@@ -597,20 +612,23 @@ def update_pass_type(*args):
     return button_id,button_id
 
 @app.callback(
-    Output('pass_map1', 'figure'),Output('pass_bar1','figure'),Output('passacc1','figure'),
+    Output('pass_map1', 'figure'),Output('pass_bar1','figure'),Output('passacc1','figure'),Output('inac_bar1','figure'),
     [Input('club1_header', 'children'),
      Input('pass1_type', 'children'),
      Input('slider1','value'),
      Input('pass_map1','selectedData'),
-     Input('pass_bar1','selectedData')],
-    State('pass_bar1','figure'))
-def update_pass_map(club1_name, pass1_type,slider1,selectedData,barclickData,pass_bar):
+     Input('pass_bar1','selectedData'),
+     Input('inac_bar1','selectedData')],
+    [State('pass_bar1','figure'),
+     State('inac_bar1','figure')])
+def update_pass_map(club1_name, pass1_type,slider1,selectedData,barclickData,inac_click_data,pass_bar,inac_bar):
 
+    pass_player_flag = "n"
     last_week = slider1
     last_match_df = pos_df[(pos_df['gameweek'] == last_week) & (pos_df['teamName'] == club1_name)]
     match_id = last_match_df['matchId'].unique()[0]
     team_id = last_match_df['teamId'].unique()[0]
-    if (selectedData is None) and (barclickData is None):
+    if (selectedData is None) and (barclickData is None) and (inac_click_data is None):
         if pass1_type == 'All Passes':
             pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['teamId'] == team_id)]
             df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['teamId'] == team_id)]
@@ -618,6 +636,7 @@ def update_pass_map(club1_name, pass1_type,slider1,selectedData,barclickData,pas
             pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['teamId'] == team_id) & (pass_df['subEventName'] == pass1_type)]
             df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['teamId'] == team_id) & (pass_acc['subEventName'] == pass1_type)]
     elif selectedData is not None:
+        pass_player_flag = "y"
         points = selectedData['points']
         playerId = []
         matchId = []
@@ -627,18 +646,25 @@ def update_pass_map(club1_name, pass1_type,slider1,selectedData,barclickData,pas
                 matchId.append(item['customdata'][1])
 
         if barclickData is not None:
+            pass_player_flag = "y"
             points = barclickData['points']
             time_categories = []
+            player_sender_id = []
             for item in points:
                 time_categories.append(item['x'])
+                player_sender_id.append(item['customdata'][0])
+
+            if '-' in str(player_sender_id[0]):
+                player_sender_id = playerId[:]
+
             if pass1_type == 'All Passes':
-                pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['playerId_sender'].isin(playerId)) & (pass_df['timeCat'].isin(time_categories))]
-                df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['playerId'].isin(playerId)) & (pass_acc['timeCat'].isin(time_categories))]
+                pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['playerId_sender'].isin(playerId)) & (pass_df['timeCat'].isin(time_categories)) & (pass_df['playerId_sender'].isin(player_sender_id))]
+                df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['playerId'].isin(playerId)) & (pass_acc['timeCat'].isin(time_categories)) & (pass_acc['playerId'].isin(player_sender_id))]
             else:
                 pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['playerId_sender'].isin(playerId)) & (
-                            pass_df['subEventName'] == pass1_type) & (pass_df['timeCat'].isin(time_categories))]
+                            pass_df['subEventName'] == pass1_type) & (pass_df['timeCat'].isin(time_categories)) & (pass_df['playerId_sender'].isin(player_sender_id))]
                 df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['playerId'].isin(playerId)) & (
-                        pass_acc['subEventName'] == pass1_type) & (pass_acc['timeCat'].isin(time_categories))]
+                        pass_acc['subEventName'] == pass1_type) & (pass_acc['timeCat'].isin(time_categories)) & (pass_acc['playerId'].isin(player_sender_id))]
         else:
             if pass1_type == 'All Passes':
                 pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['playerId_sender'].isin(playerId))]
@@ -663,39 +689,63 @@ def update_pass_map(club1_name, pass1_type,slider1,selectedData,barclickData,pas
                         pass_acc['subEventName'] == pass1_type)]
 
 
-    if len(pass_net) == 0:
-        accuracy = 0
-    else:
-        accuracy = round(df_acc["passAccuracy"].mean(),2)
-
-    acc_gauge = passacc(accuracy, "passacc1")
-
     opponent_flag = 'n'
 
     pass_network = create_passing_network_map(last_match_df,pass_net,opponent_flag)
 
     if barclickData is None:
-        pass_bar = create_passing_bars(pass_net,pass1_type)
-    return pass_network,pass_bar,acc_gauge
+        pass_bar,ac_df = create_passing_bars(pass_net,pass1_type,pass_player_flag)
+        inac_bar,inac_df = create_inaccurate_pass_bars(df_acc,pass1_type,pass_player_flag)
+
+        per_df = ac_df.merge(inac_df,on=["matchId","teamId"]).groupby(["matchId","teamId"]).agg({"not accurate":"sum","Pass_count":"sum"}).reset_index()
+        per_df["accuracy"] = (per_df["Pass_count"] / (per_df["not accurate"] + per_df['Pass_count'])) * 100
+        accuracy = round(per_df["accuracy"].mean(), 2)
+    else:
+        ac_df = pass_net \
+            .groupby(['matchId', 'teamId', 'timeCat']) \
+            .agg({'Label': 'count'}) \
+            .reset_index().rename(columns={'Label': 'Pass_count'})
+        if pass_player_flag == "y":
+            ac_df = pass_net \
+                .groupby(['matchId', 'teamId', 'timeCat', 'playerId_sender', 'shortName_sender']) \
+                .agg({'Label': 'count'}) \
+                .reset_index().rename(columns={'Label': 'Pass_count'})
+        inac_df = pass_acc \
+            .groupby(['matchId', 'teamId', 'timeCat']) \
+            .agg({'not accurate': 'sum'}) \
+            .reset_index().rename(columns={'Label': 'not accurate'})
+        if pass_player_flag == "y":
+            inac_df = pass_acc \
+                .groupby(['matchId', 'teamId', 'timeCat', 'playerId', 'shortName_sender']) \
+                .agg({'not accurate': 'sum'}) \
+                .reset_index().rename(columns={'Label': 'not accurate'})
+        per_df = ac_df.merge(inac_df).groupby(["matchId","teamId"]).agg({"not accurate":"sum","Pass_count":"sum"}).reset_index()
+        per_df["accuracy"] = (per_df["Pass_count"] / (per_df["not accurate"] + per_df['Pass_count'])) * 100
+        accuracy = round(per_df["accuracy"].mean(), 2)
+    acc_gauge = passacc(accuracy, "passacc1")
+    return pass_network,pass_bar,acc_gauge,inac_bar
 
 @app.callback(
     Output('pass_map2', 'figure'),
-    Output('pass_bar2','figure'),Output('passacc2','figure'),
+    Output('pass_bar2','figure'),Output('passacc2','figure'),Output('inac_bar2','figure'),
     [Input('club2_header', 'children'),
      Input('club1_header', 'children'),
      Input('pass2_type', 'children'),
      Input('slider2','value'),
      Input('pass_map2','selectedData'),
-     Input('pass_bar2','selectedData')],
-    State('pass_bar2', 'figure'))
-def update_pass_map(club2_name,club1_name,pass2_type,slider2,selectedData,barclickData,pass_bar):
+     Input('pass_bar2','selectedData'),
+     Input('inac_bar2', 'selectedData')],
+    [State('pass_bar2', 'figure'),
+    State('inac_bar2','figure')])
+def update_pass_map(club2_name,club1_name,pass2_type,slider2,selectedData,barclickData,inac_click_data,pass_bar,inac_bar):
+    pass_player_flag = "n"
     last_week = slider2
     last_match_df = pos_df[(pos_df['gameweek'] == last_week) & (pos_df['teamName'] == club2_name)]
     last_match_df['X'] = 100 - last_match_df['X']
     last_match_df['Y'] = 100 - last_match_df['Y']
     match_id = last_match_df['matchId'].unique()[0]
     team_id = last_match_df['teamId'].unique()[0]
-    if (selectedData is None) and (barclickData is None):
+    if (selectedData is None) and (barclickData is None) and (inac_click_data is None):
         if pass2_type == 'All Passes':
             pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['teamId'] == team_id)]
             df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['teamId'] == team_id)]
@@ -703,6 +753,7 @@ def update_pass_map(club2_name,club1_name,pass2_type,slider2,selectedData,barcli
             pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['teamId'] == team_id) & (pass_df['subEventName'] == pass2_type)]
             df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['teamId'] == team_id) & (pass_acc['subEventName'] == pass2_type)]
     elif selectedData is not None:
+        pass_player_flag = "y"
         points = selectedData['points']
         playerId = []
         matchId = []
@@ -714,16 +765,22 @@ def update_pass_map(club2_name,club1_name,pass2_type,slider2,selectedData,barcli
         if barclickData is not None:
             points = barclickData['points']
             time_categories = []
+            player_sender_id = []
             for item in points:
                 time_categories.append(item['x'])
+                player_sender_id.append(item['customdata'][0])
+
+            if '-' in str(player_sender_id[0]):
+                player_sender_id = playerId[:]
+
             if pass2_type == 'All Passes':
-                pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['playerId_sender'].isin(playerId)) & (pass_df['timeCat'].isin(time_categories))]
-                df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['playerId'].isin(playerId))]
+                pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['playerId_sender'].isin(playerId)) & (pass_df['timeCat'].isin(time_categories)) & (pass_df['playerId_sender'].isin(player_sender_id))]
+                df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['playerId'].isin(playerId)) & (pass_acc['playerId'].isin(player_sender_id))]
             else:
                 pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['playerId_sender'].isin(playerId)) & (
-                            pass_df['subEventName'] == pass2_type) & (pass_df['timeCat'].isin(time_categories))]
+                            pass_df['subEventName'] == pass2_type) & (pass_df['timeCat'].isin(time_categories)) & (pass_df['playerId_sender'].isin(player_sender_id))]
                 df_acc = pass_acc[(pass_acc['matchId'] == match_id) & (pass_acc['playerId'].isin(playerId)) & (
-                        pass_acc['subEventName'] == pass2_type) & (pass_acc['timeCat'].isin(time_categories))]
+                        pass_acc['subEventName'] == pass2_type) & (pass_acc['timeCat'].isin(time_categories)) & (pass_acc['playerId'].isin(player_sender_id))]
         else:
             if pass2_type == 'All Passes':
                 pass_net = pass_df[(pass_df['matchId'] == match_id) & (pass_df['playerId_sender'].isin(playerId))]
@@ -752,18 +809,41 @@ def update_pass_map(club2_name,club1_name,pass2_type,slider2,selectedData,barcli
     pass_net['X_receiver'] = 100 - pass_net['X_receiver']
     pass_net['Y_receiver'] = 100 - pass_net['Y_receiver']
 
-    if len(pass_net) == 0:
-        accuracy = 0
-    else:
-        accuracy = round(df_acc["passAccuracy"].mean(), 2)
-
-    acc_gauge = passacc(accuracy, "passacc2")
 
     opponent_flag = 'y'
     pass_network = create_passing_network_map(last_match_df,pass_net,opponent_flag)
     if barclickData is None:
-        pass_bar = create_passing_bars(pass_net,pass2_type)
-    return pass_network,pass_bar,acc_gauge
+        pass_bar,ac_df = create_passing_bars(pass_net,pass2_type,pass_player_flag)
+        inac_bar, inac_df = create_inaccurate_pass_bars(df_acc, pass2_type, pass_player_flag)
+
+        per_df = ac_df.merge(inac_df).groupby(["matchId","teamId"]).agg({"not accurate":"sum","Pass_count":"sum"}).reset_index()
+        per_df["accuracy"] = (per_df["Pass_count"] / (per_df["not accurate"] + per_df['Pass_count'])) * 100
+        accuracy = round(per_df["accuracy"].mean(), 2)
+    else:
+        ac_df = pass_net \
+            .groupby(['matchId', 'teamId', 'timeCat']) \
+            .agg({'Label': 'count'}) \
+            .reset_index().rename(columns={'Label': 'Pass_count'})
+        if pass_player_flag == "y":
+            ac_df = pass_net \
+                .groupby(['matchId', 'teamId', 'timeCat', 'playerId_sender', 'shortName_sender']) \
+                .agg({'Label': 'count'}) \
+                .reset_index().rename(columns={'Label': 'Pass_count'})
+        inac_df = pass_acc \
+            .groupby(['matchId', 'teamId', 'timeCat']) \
+            .agg({'not accurate': 'sum'}) \
+            .reset_index().rename(columns={'Label': 'not accurate'})
+        if pass_player_flag == "y":
+            inac_df = pass_acc \
+                .groupby(['matchId', 'teamId', 'timeCat', 'playerId', 'shortName_sender']) \
+                .agg({'not accurate': 'sum'}) \
+                .reset_index().rename(columns={'Label': 'not accurate'})
+        per_df = ac_df.merge(inac_df).groupby(["matchId","teamId"]).agg({"not accurate":"sum","Pass_count":"sum"}).reset_index()
+        per_df["accuracy"] = (per_df["Pass_count"] / (per_df["not accurate"] + per_df['Pass_count'])) * 100
+        accuracy = round(per_df["accuracy"].mean(), 2)
+
+    acc_gauge = passacc(accuracy, "passacc2")
+    return pass_network,pass_bar,acc_gauge,inac_bar
 
 
 @app.callback(
@@ -807,4 +887,4 @@ def update_match_card(club2_name, slider2):
 
 
 if __name__ == '__main__':
-    app.run(debug=true)
+    server.run(debug=True)
